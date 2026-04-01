@@ -6,11 +6,15 @@
 import type { EntityMetadata, EntityField, EntityFieldType } from "@/types";
 import { CopilotProxyClient } from "@/services/llm/llmClient";
 import { MetadataService } from "@/services/d365/metadataService";
+import { ODataService } from "@/services/d365/odataService";
+import { FormDataService } from "@/services/data/formDataService";
 import { FormCache } from "@/services/cache/formCache";
 import { IndexedDbCacheStore } from "@/services/cache/indexedDbCache";
 import { FormGenerationService } from "@/services/generation/formGenerationService";
 import { setFormGenerationService } from "@/hooks/useGeneratedForm";
 import { setPregenService } from "@/hooks/useFormPregeneration";
+import { setDataServices } from "@/hooks/useEntityData";
+import { setDashboardOData } from "@/services/analytics/dashboardService";
 import { ENTITY_CATALOG, type EntityCatalogEntry } from "@/data/entityCatalog";
 
 /**
@@ -84,10 +88,12 @@ function createCatalogMetadataFetcher() {
 
 /**
  * Bootstrap all services and wire them into the React hooks.
+ * Now async — acquires a D365 token via MSAL before connecting OData.
  */
-export function bootstrapServices(): void {
+export async function bootstrapServices(): Promise<void> {
   const proxyEndpoint = import.meta.env.VITE_LLM_ENDPOINT || "http://127.0.0.1:8080";
   const model = import.meta.env.VITE_LLM_MODEL || "gpt-4o";
+  const d365Endpoint = import.meta.env.VITE_D365_ENDPOINT as string | undefined;
 
   // LLM provider
   const llm = new CopilotProxyClient({
@@ -112,9 +118,36 @@ export function bootstrapServices(): void {
   // Generation orchestrator
   const formGenService = new FormGenerationService({ llm, metadata, formCache });
 
+  // OData + FormDataService (only when D365 endpoint is configured)
+  let formDataService: FormDataService | null = null;
+  if (d365Endpoint) {
+    // Login via MSAL — may redirect to Microsoft login (page reloads after)
+    const { login, getAccessToken } = await import("@/services/auth/msalService");
+    const loggedIn = await login();
+    if (!loggedIn) {
+      // Redirect to login in progress — page will reload, bail out
+      return;
+    }
+    console.info("[bootstrap] MSAL login succeeded");
+
+    // In dev, use Vite proxy (empty baseUrl) to avoid CORS; in prod, hit D365 directly
+    const isDev = import.meta.env.DEV;
+    const odata = new ODataService({
+      baseUrl: isDev ? "" : d365Endpoint,
+      getAccessToken,
+      maxRetries: 3,
+    });
+    formDataService = new FormDataService({ odata });
+    setDashboardOData(odata);
+    console.info(`[bootstrap] D365 OData connected — ${d365Endpoint}`);
+  } else {
+    console.info("[bootstrap] No D365 endpoint configured — using demo data");
+  }
+
   // Wire into React hooks
   setFormGenerationService(formGenService);
   setPregenService(formGenService);
+  setDataServices(formDataService);
 
   console.info(
     `[bootstrap] Services initialized — LLM: ${proxyEndpoint} model=${model}`

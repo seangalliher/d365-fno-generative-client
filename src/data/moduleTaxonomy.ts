@@ -17,8 +17,8 @@ export const MODULE_TAXONOMY: MenuModule[] = [
       { menuItemName: "LedgerJournalTable", menuItemType: "Display", label: "General journals", entitySet: "GeneralJournalHeaders", formCached: false, accessCount: 0 },
       { menuItemName: "MainAccountListPage", menuItemType: "Display", label: "Main accounts", entitySet: "MainAccounts", formCached: false, accessCount: 0 },
       { menuItemName: "LedgerChartOfAccountsListPage", menuItemType: "Display", label: "Chart of accounts", entitySet: "LedgerChartOfAccounts", formCached: false, accessCount: 0 },
-      { menuItemName: "DimensionDetails", menuItemType: "Display", label: "Financial dimensions", formCached: false, accessCount: 0 },
-      { menuItemName: "LedgerPeriodClose", menuItemType: "Display", label: "Period close", formCached: false, accessCount: 0 },
+      { menuItemName: "DimensionDetails", menuItemType: "Display", label: "Financial dimensions", entitySet: "FinancialDimensionValues", formCached: false, accessCount: 0 },
+      { menuItemName: "LedgerPeriodClose", menuItemType: "Display", label: "Period close", entitySet: "LedgerFiscalPeriodsV2", formCached: false, accessCount: 0 },
     ],
   },
   {
@@ -30,9 +30,9 @@ export const MODULE_TAXONOMY: MenuModule[] = [
     items: [
       { menuItemName: "CustTableListPage", menuItemType: "Display", label: "All customers", entitySet: "CustomersV3", formCached: false, accessCount: 0 },
       { menuItemName: "SalesTableListPage", menuItemType: "Display", label: "All sales orders", entitySet: "SalesOrderHeadersV2", formCached: false, accessCount: 0 },
-      { menuItemName: "CustFreeInvoiceListPage", menuItemType: "Display", label: "Free text invoices", formCached: false, accessCount: 0 },
-      { menuItemName: "CustOpenInvoicesListPage", menuItemType: "Display", label: "Open customer invoices", formCached: false, accessCount: 0 },
-      { menuItemName: "CustPaymMode", menuItemType: "Display", label: "Methods of payment", formCached: false, accessCount: 0 },
+      { menuItemName: "CustFreeInvoiceListPage", menuItemType: "Display", label: "Free text invoices", entitySet: "FreeTextInvoiceHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "CustOpenInvoicesListPage", menuItemType: "Display", label: "Open customer invoices", entitySet: "FreeTextInvoiceHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "CustPaymMode", menuItemType: "Display", label: "Methods of payment", entitySet: "CustomerPaymentMethods", formCached: false, accessCount: 0 },
       { menuItemName: "CustomerGroupListPage", menuItemType: "Display", label: "Customer groups", entitySet: "CustomerGroups", formCached: false, accessCount: 0 },
     ],
   },
@@ -45,8 +45,8 @@ export const MODULE_TAXONOMY: MenuModule[] = [
     items: [
       { menuItemName: "VendTableListPage", menuItemType: "Display", label: "All vendors", entitySet: "VendorsV2", formCached: false, accessCount: 0 },
       { menuItemName: "PurchTableListPage", menuItemType: "Display", label: "All purchase orders", entitySet: "PurchaseOrderHeadersV2", formCached: false, accessCount: 0 },
-      { menuItemName: "VendOpenInvoicesListPage", menuItemType: "Display", label: "Open vendor invoices", formCached: false, accessCount: 0 },
-      { menuItemName: "VendPaymMode", menuItemType: "Display", label: "Methods of payment", formCached: false, accessCount: 0 },
+      { menuItemName: "VendOpenInvoicesListPage", menuItemType: "Display", label: "Open vendor invoices", entitySet: "VendorInvoiceHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "VendPaymMode", menuItemType: "Display", label: "Methods of payment", entitySet: "VendorPaymentMethods", formCached: false, accessCount: 0 },
       { menuItemName: "VendGroupListPage", menuItemType: "Display", label: "Vendor groups", entitySet: "VendorGroups", formCached: false, accessCount: 0 },
     ],
   },
@@ -57,10 +57,10 @@ export const MODULE_TAXONOMY: MenuModule[] = [
     description: "Procurement policies, requisitions, and sourcing",
     order: 4,
     items: [
-      { menuItemName: "PurchReqListPage", menuItemType: "Display", label: "Purchase requisitions", formCached: false, accessCount: 0 },
-      { menuItemName: "PurchRFQListPage", menuItemType: "Display", label: "Requests for quotation", formCached: false, accessCount: 0 },
-      { menuItemName: "PurchAgreementListPage", menuItemType: "Display", label: "Purchase agreements", formCached: false, accessCount: 0 },
-      { menuItemName: "CatProcurementCatalogListPage", menuItemType: "Display", label: "Procurement catalogs", formCached: false, accessCount: 0 },
+      { menuItemName: "PurchReqListPage", menuItemType: "Display", label: "Purchase requisitions", entitySet: "PurchaseRequisitionHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "PurchRFQListPage", menuItemType: "Display", label: "Requests for quotation", entitySet: "RequestForQuotationReplyHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "PurchAgreementListPage", menuItemType: "Display", label: "Purchase agreements", entitySet: "PurchaseAgreements", formCached: false, accessCount: 0 },
+      { menuItemName: "CatProcurementCatalogListPage", menuItemType: "Display", label: "Procurement catalogs", entitySet: "ProcurementProductCategories", formCached: false, accessCount: 0 },
     ],
   },
   {
@@ -71,11 +71,11 @@ export const MODULE_TAXONOMY: MenuModule[] = [
     order: 5,
     items: [
       { menuItemName: "EcoResProductListPage", menuItemType: "Display", label: "Released products", entitySet: "ReleasedProductsV2", formCached: false, accessCount: 0 },
-      { menuItemName: "InventOnHandItem", menuItemType: "Display", label: "On-hand inventory", entitySet: "InventOnhandEntities", formCached: false, accessCount: 0 },
+      { menuItemName: "InventOnHandItem", menuItemType: "Display", label: "On-hand inventory", entitySet: "InventorySitesOnHandV2", formCached: false, accessCount: 0 },
       { menuItemName: "InventSiteListPage", menuItemType: "Display", label: "Sites", entitySet: "InventSites", formCached: false, accessCount: 0 },
       { menuItemName: "WMSWarehouseListPage", menuItemType: "Display", label: "Warehouses", entitySet: "InventWarehouses", formCached: false, accessCount: 0 },
       { menuItemName: "InventItemGroupList", menuItemType: "Display", label: "Item groups", entitySet: "ItemGroups", formCached: false, accessCount: 0 },
-      { menuItemName: "InventJournalTable_Movement", menuItemType: "Display", label: "Inventory journals", formCached: false, accessCount: 0 },
+      { menuItemName: "InventJournalTable_Movement", menuItemType: "Display", label: "Inventory journals", entitySet: "InventoryMovementJournalHeaders", formCached: false, accessCount: 0 },
     ],
   },
   {
@@ -85,10 +85,10 @@ export const MODULE_TAXONOMY: MenuModule[] = [
     description: "Production orders, BOMs, and routes",
     order: 6,
     items: [
-      { menuItemName: "ProdTableListPage", menuItemType: "Display", label: "All production orders", formCached: false, accessCount: 0 },
-      { menuItemName: "BOMVersionListPage", menuItemType: "Display", label: "Bills of materials", formCached: false, accessCount: 0 },
-      { menuItemName: "RouteVersionListPage", menuItemType: "Display", label: "Routes", formCached: false, accessCount: 0 },
-      { menuItemName: "WrkCtrResourceGroupListPage", menuItemType: "Display", label: "Resource groups", formCached: false, accessCount: 0 },
+      { menuItemName: "ProdTableListPage", menuItemType: "Display", label: "All production orders", entitySet: "ProductionOrderHeaders", formCached: false, accessCount: 0 },
+      { menuItemName: "BOMVersionListPage", menuItemType: "Display", label: "Bills of materials", entitySet: "BillOfMaterialsVersionsV4", formCached: false, accessCount: 0 },
+      { menuItemName: "RouteVersionListPage", menuItemType: "Display", label: "Routes", entitySet: "RouteVersionsV2", formCached: false, accessCount: 0 },
+      { menuItemName: "WrkCtrResourceGroupListPage", menuItemType: "Display", label: "Resource groups", entitySet: "DimAttributeWrkCtrResourceGroups", formCached: false, accessCount: 0 },
     ],
   },
   {
@@ -101,7 +101,7 @@ export const MODULE_TAXONOMY: MenuModule[] = [
       { menuItemName: "HcmWorkerListPage_Employees", menuItemType: "Display", label: "Employees", entitySet: "Employees", formCached: false, accessCount: 0 },
       { menuItemName: "HcmWorkerListPage_Workers", menuItemType: "Display", label: "All workers", entitySet: "Workers", formCached: false, accessCount: 0 },
       { menuItemName: "HcmPositionListPage", menuItemType: "Display", label: "Positions", entitySet: "Positions", formCached: false, accessCount: 0 },
-      { menuItemName: "HcmDepartmentListPage", menuItemType: "Display", label: "Departments", formCached: false, accessCount: 0 },
+      { menuItemName: "HcmDepartmentListPage", menuItemType: "Display", label: "Departments", entitySet: "DimAttributeOMDepartments", formCached: false, accessCount: 0 },
     ],
   },
   {
