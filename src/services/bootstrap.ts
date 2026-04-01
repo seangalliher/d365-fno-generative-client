@@ -14,8 +14,10 @@ import { FormGenerationService } from "@/services/generation/formGenerationServi
 import { setFormGenerationService } from "@/hooks/useGeneratedForm";
 import { setPregenService } from "@/hooks/useFormPregeneration";
 import { setDataServices } from "@/hooks/useEntityData";
-import { setDashboardOData } from "@/services/analytics/dashboardService";
-import { setNLQueryLlm, setNLQueryOData } from "@/services/analytics/nlQueryService";
+import { setDashboardOData, setDashboardMcpProvider } from "@/services/analytics/dashboardService";
+import { setNLQueryLlm, setNLQueryOData, setNLQueryMcp } from "@/services/analytics/nlQueryService";
+import { McpBridgeClient } from "@/services/mcp/mcpBridgeClient";
+import { McpDashboardProvider } from "@/services/analytics/mcpDashboardProvider";
 import { ENTITY_CATALOG, type EntityCatalogEntry } from "@/data/entityCatalog";
 
 /**
@@ -142,6 +144,20 @@ export async function bootstrapServices(): Promise<void> {
     setDashboardOData(odata);
     setNLQueryOData(odata);
     console.info(`[bootstrap] D365 OData connected — ${d365Endpoint}`);
+
+    // Probe MCP bridge server (runs alongside Vite dev server on :3001)
+    const mcpBridgeUrl = (import.meta.env.VITE_MCP_BRIDGE_URL as string) ?? "";
+    const mcpClient = new McpBridgeClient({ bridgeUrl: mcpBridgeUrl, getAccessToken });
+    const mcpReachable = await mcpClient.isReachable();
+    if (mcpReachable) {
+      const mcpProvider = new McpDashboardProvider(mcpClient);
+      mcpProvider.setReachable(true);
+      setDashboardMcpProvider(mcpProvider);
+      setNLQueryMcp(mcpClient);
+      console.info("[bootstrap] MCP bridge connected");
+    } else {
+      console.info("[bootstrap] MCP bridge not available — OData only");
+    }
   } else {
     console.info("[bootstrap] No D365 endpoint configured — using demo data");
   }

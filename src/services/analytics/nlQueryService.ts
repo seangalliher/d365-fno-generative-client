@@ -5,7 +5,9 @@
 
 import type { FormGenerationProvider } from "@/services/llm/llmClient";
 import type { ODataService } from "@/services/d365/odataService";
+import type { McpBridgeClient } from "@/services/mcp/mcpBridgeClient";
 import type { NLQueryResult, NLQueryColumn } from "./dashboardDataProvider";
+import { getActiveDashboardSource } from "./dashboardService";
 import { buildNLDashboardPrompt } from "@/services/llm/promptTemplates";
 import { ENTITY_CATALOG } from "@/data/entityCatalog";
 
@@ -13,6 +15,7 @@ import { ENTITY_CATALOG } from "@/data/entityCatalog";
 
 let _llm: FormGenerationProvider | null = null;
 let _odata: ODataService | null = null;
+let _mcpClient: McpBridgeClient | null = null;
 
 export function setNLQueryLlm(llm: FormGenerationProvider | null): void {
   _llm = llm;
@@ -22,8 +25,12 @@ export function setNLQueryOData(odata: ODataService | null): void {
   _odata = odata;
 }
 
+export function setNLQueryMcp(client: McpBridgeClient | null): void {
+  _mcpClient = client;
+}
+
 export function isNLQueryAvailable(): boolean {
-  return _llm !== null && _odata !== null;
+  return _llm !== null && (_odata !== null || _mcpClient !== null);
 }
 
 // ---- Entity summary for prompt context ----
@@ -83,7 +90,7 @@ export async function executeNLDashboardQuery(
   query: string,
   company: string,
 ): Promise<NLQueryResult> {
-  if (!_llm || !_odata) {
+  if (!_llm || (!_odata && !_mcpClient)) {
     return {
       title: "Not Available",
       chartType: "table",
@@ -110,17 +117,37 @@ export async function executeNLDashboardQuery(
     };
   }
 
-  // 2. Execute OData query
+  // 2. Execute query via active data source (OData or MCP)
   let rows: Record<string, unknown>[];
+  const useMcp = getActiveDashboardSource() === "mcp" && _mcpClient !== null;
+
   try {
-    const result = await _odata.query(spec.entitySet, {
-      select: spec.select,
-      filter: spec.filter,
-      orderby: spec.orderby,
-      top: spec.top,
-      crossCompany: true,
-    });
-    rows = result.value as Record<string, unknown>[];
+    if (useMcp) {
+      // Build OData query options string for MCP data_find_entities tool
+      const parts: string[] = [`cross-company=true`];
+      if (spec.select) parts.push(`$select=${spec.select}`);
+      if (spec.filter) parts.push(`$filter=${spec.filter}`);
+      if (spec.orderby) parts.push(`$orderby=${spec.orderby}`);
+      if (spec.top) parts.push(`$top=${spec.top}`);
+      const queryOptions = parts.join("&");
+
+      const result = await _mcpClient!.callTool("data_find_entities", {
+        odataPath: spec.entitySet,
+        odataQueryOptions: queryOptions,
+      });
+      const parsed = _mcpClient!.extractJson<{ value?: Record<string, unknown>[] }>(result);
+      rows = parsed.value ?? [];
+    } else {
+      // OData path (existing)
+      const result = await _odata!.query(spec.entitySet, {
+        select: spec.select,
+        filter: spec.filter,
+        orderby: spec.orderby,
+        top: spec.top,
+        crossCompany: true,
+      });
+      rows = result.value as Record<string, unknown>[];
+    }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return {
@@ -128,7 +155,7 @@ export async function executeNLDashboardQuery(
       chartType: spec.chartType,
       columns: spec.columns,
       rows: [],
-      error: `OData query failed for ${spec.entitySet}: ${msg}`,
+      error: `${useMcp ? "MCP" : "OData"} query failed for ${spec.entitySet}: ${msg}`,
     };
   }
 
