@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { ChartCard } from "@/components/dashboard/ChartCard";
+import { DataSourceToggle } from "@/components/dashboard/DataSourceToggle";
+import { NLDashboardSection } from "@/components/dashboard/NLDashboardSection";
 import { MODULE_TAXONOMY, getAllMenuItems } from "@/data/moduleTaxonomy";
 import {
   fetchKpis,
@@ -48,6 +50,7 @@ const CHART_COLORS = ["#2563eb", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0
 export function DashboardPage() {
   const navigate = useNavigate();
   const company = useAppState((s) => s.currentCompany);
+  const dataSource = useAppState((s) => s.dashboardDataSource);
   const recentItemsFn = useNavigationHistory((s) => s.recentItems);
   const recentItems = recentItemsFn(8);
   const { modules } = useMenuStructure();
@@ -55,37 +58,37 @@ export function DashboardPage() {
 
   // --- Data queries (only run when connected to live D365) ---
   const kpiQuery = useQuery({
-    queryKey: ["dashboard-kpis", company],
+    queryKey: ["dashboard-kpis", company, dataSource],
     queryFn: () => fetchKpis(company),
     enabled: isLive,
   });
 
   const salesStatusQuery = useQuery({
-    queryKey: ["dashboard-sales-status", company],
+    queryKey: ["dashboard-sales-status", company, dataSource],
     queryFn: () => fetchSalesOrderStatusBreakdown(company),
     enabled: isLive,
   });
 
   const poStatusQuery = useQuery({
-    queryKey: ["dashboard-po-status", company],
+    queryKey: ["dashboard-po-status", company, dataSource],
     queryFn: () => fetchPurchaseOrderStatusBreakdown(company),
     enabled: isLive,
   });
 
   const topCustomersQuery = useQuery({
-    queryKey: ["dashboard-top-customers", company],
+    queryKey: ["dashboard-top-customers", company, dataSource],
     queryFn: () => fetchTopCustomersByOrders(company),
     enabled: isLive,
   });
 
   const topInventoryQuery = useQuery({
-    queryKey: ["dashboard-top-inventory", company],
+    queryKey: ["dashboard-top-inventory", company, dataSource],
     queryFn: () => fetchTopProductsByInventory(company),
     enabled: isLive,
   });
 
   const recentOrdersQuery = useQuery({
-    queryKey: ["dashboard-recent-orders", company],
+    queryKey: ["dashboard-recent-orders", company, dataSource],
     queryFn: () => fetchRecentSalesOrders(company),
     enabled: isLive,
   });
@@ -115,6 +118,9 @@ export function DashboardPage() {
           <div className="mb-3 flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold">Key Metrics</h2>
+            <div className="ml-auto">
+              <DataSourceToggle />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {kpiQuery.isLoading
@@ -269,6 +275,13 @@ export function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+        </section>
+      )}
+
+      {/* Natural Language Dashboard Builder */}
+      {isLive && (
+        <section>
+          <NLDashboardSection />
         </section>
       )}
 

@@ -15,6 +15,7 @@ import { setFormGenerationService } from "@/hooks/useGeneratedForm";
 import { setPregenService } from "@/hooks/useFormPregeneration";
 import { setDataServices } from "@/hooks/useEntityData";
 import { setDashboardOData } from "@/services/analytics/dashboardService";
+import { setNLQueryLlm, setNLQueryOData } from "@/services/analytics/nlQueryService";
 import { ENTITY_CATALOG, type EntityCatalogEntry } from "@/data/entityCatalog";
 
 /**
@@ -139,6 +140,7 @@ export async function bootstrapServices(): Promise<void> {
     });
     formDataService = new FormDataService({ odata });
     setDashboardOData(odata);
+    setNLQueryOData(odata);
     console.info(`[bootstrap] D365 OData connected — ${d365Endpoint}`);
   } else {
     console.info("[bootstrap] No D365 endpoint configured — using demo data");
@@ -148,6 +150,7 @@ export async function bootstrapServices(): Promise<void> {
   setFormGenerationService(formGenService);
   setPregenService(formGenService);
   setDataServices(formDataService);
+  setNLQueryLlm(llm);
 
   console.info(
     `[bootstrap] Services initialized — LLM: ${proxyEndpoint} model=${model}`

@@ -20,6 +20,10 @@ interface AppState {
   setModule: (moduleId: string | null) => void;
   setMenuItem: (item: MenuItem | null) => void;
 
+  // Dashboard data source
+  dashboardDataSource: "odata" | "mcp";
+  setDashboardDataSource: (source: "odata" | "mcp") => void;
+
   // UI state
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
@@ -40,6 +44,9 @@ export const useAppState = create<AppState>()(
       setModule: (moduleId) => set({ currentModuleId: moduleId, currentMenuItem: null }),
       setMenuItem: (item) => set({ currentMenuItem: item }),
 
+      dashboardDataSource: "odata",
+      setDashboardDataSource: (source) => set({ dashboardDataSource: source }),
+
       sidebarCollapsed: false,
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       theme: "light",
@@ -49,6 +56,7 @@ export const useAppState = create<AppState>()(
       name: "d365-app-state",
       partialize: (state) => ({
         currentCompany: state.currentCompany,
+        dashboardDataSource: state.dashboardDataSource,
         sidebarCollapsed: state.sidebarCollapsed,
         theme: state.theme,
       }),

@@ -115,6 +115,49 @@ ${GENERATED_FORM_SCHEMA}
 Return ONLY the JSON object. No markdown, no explanation.`;
 }
 
+// ---- NL Dashboard prompt ----
+
+export function buildNLDashboardPrompt(
+  query: string,
+  company: string,
+  entitySummary: string,
+): string {
+  return `You are a D365 Finance & Operations data analyst. A user asked a natural language question about their ERP data.
+Generate an OData query specification and chart configuration to answer the question.
+
+User question: "${query}"
+Company (dataAreaId): ${company}
+
+Available D365 OData entity sets and their key fields:
+${entitySummary}
+
+Instructions:
+1. Pick the most relevant entity set from the list above
+2. Choose appropriate $select, $filter, $orderby, and $top parameters
+3. Always include a dataAreaId filter for the company
+4. Choose a chart type that best visualizes the answer: "bar", "pie", "line", or "table"
+5. If the question involves counts or grouping, plan client-side aggregation
+
+Return a JSON object with this exact structure:
+{
+  "title": "Human-readable chart title",
+  "chartType": "bar" | "pie" | "line" | "table",
+  "entitySet": "EntitySetName",
+  "select": "Field1,Field2,Field3",
+  "filter": "dataAreaId eq '${company}' and ...",
+  "orderby": "Field1 desc",
+  "top": 50,
+  "xKey": "field name for X axis / labels",
+  "yKey": "field name for Y axis / values",
+  "aggregateBy": "optional: field to group and count by",
+  "columns": [
+    { "key": "Field1", "label": "Display Name", "type": "string" | "number" | "date" }
+  ]
+}
+
+Return ONLY the JSON object. No markdown, no explanation.`;
+}
+
 export function buildFormRefinementPrompt(ctx: PromptContext): string {
   if (!ctx.userFeedback || !ctx.currentForm) {
     return buildFormGenerationPrompt(ctx);
