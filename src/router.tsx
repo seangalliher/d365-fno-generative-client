@@ -15,6 +15,9 @@ const DashboardPage = lazy(() =>
 const FormPage = lazy(() =>
   import("@/pages/FormPage").then((m) => ({ default: m.FormPage }))
 );
+const DataModelPage = lazy(() =>
+  import("@/pages/DataModelPage").then((m) => ({ default: m.DataModelPage }))
+);
 
 function PageSuspense({ children }: { children: React.ReactNode }) {
   return (
@@ -68,6 +71,14 @@ export const router = createBrowserRouter(
           element: (
             <PageSuspense>
               <FormPage />
+            </PageSuspense>
+          ),
+        },
+        {
+          path: "data-model",
+          element: (
+            <PageSuspense>
+              <DataModelPage />
             </PageSuspense>
           ),
         },

@@ -21,7 +21,7 @@ import { CommandPalette } from "./CommandPalette";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { findModule } from "@/data/moduleTaxonomy";
 import type { MenuItem } from "@/types";
-import { PanelLeftClose, PanelLeft, Menu, X, Settings, ChevronLeft } from "lucide-react";
+import { PanelLeftClose, PanelLeft, Menu, X, Settings, ChevronLeft, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +140,16 @@ export function AppShell() {
               <GlobalSearch onSearch={search} onSelect={handleMenuItemSelect} />
             </div>
             {!isMobile && <CompanySelector />}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/data-model")}
+              title="Data Model Explorer"
+              aria-label="Data Model Explorer"
+              className="h-8 w-8"
+            >
+              <Network className="h-4 w-4" />
+            </Button>
             <ThemeToggle />
           </div>
         </header>
