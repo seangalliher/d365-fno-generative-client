@@ -24,21 +24,103 @@ A React-based generative UI client for Microsoft Dynamics 365 Finance & Operatio
 - **Analytics Dashboard** — KPI tiles, pie charts (order status breakdowns), bar charts (top customers, inventory levels), and a recent orders table — all powered by live OData queries with recharts.
 - **Company-Scoped Data** — A company selector filters all data by `dataAreaId`. Switching companies refreshes everything automatically.
 - **Module Navigation** — Pre-mapped taxonomy of 8 D365 modules (GL, AR, AP, Procurement, Inventory, Production, HR, Org Admin) with 37+ menu items, each linked to an OData entity set.
+- **3D Data Model Explorer** — Interactive force-directed 3D graph of all 37 entity types and their relationships, built with Three.js. Nodes are color-coded by domain (Sales, Procurement, Inventory, Finance, etc.). Click any node to inspect its fields and connections. Rotate, zoom, and pan — works on both desktop and mobile.
 - **Form Caching** — Generated forms are cached in IndexedDB so repeated visits are instant.
 - **Demo Mode** — Runs without a D365 connection using synthetic sample data.
 
 ## Architecture
 
+```mermaid
+graph TD
+    subgraph Browser["Browser — App Shell"]
+        ModuleNav[Module Nav]
+        MenuPanel[Menu Panel]
+        Breadcrumbs[Breadcrumbs]
+        CompanySelector[Company Selector]
+        GlobalSearch[Global Search]
+        CommandPalette["Command Palette ⌘K"]
+    end
+
+    subgraph Pages
+        DashboardPage[Dashboard Page]
+        FormPage[Form Page]
+        DataModelPage[3D Data Model]
+    end
+
+    subgraph FormRenderer["Dynamic Form Renderer"]
+        DynamicForm[Dynamic Form]
+        TabLayout[Tab Layout]
+        WizardLayout[Wizard Layout]
+        GridRenderer[Grid Renderer]
+        RelatedEntities[Related Entities Panel]
+        RefinementPanel[Form Refinement Panel]
+    end
+
+    subgraph Hooks["React Hooks"]
+        useGeneratedForm[useGeneratedForm]
+        useMenuStructure[useMenuStructure]
+        useFormPregen[useFormPregeneration]
+    end
+
+    subgraph FormGen["Form Generation Service"]
+        FormGenService[Form Generation Service]
+        PromptTemplates[Prompt Templates]
+        ResponseParser[Response Parser]
+    end
+
+    subgraph State["State — Zustand"]
+        AppState[App State]
+        NavHistory[Navigation History]
+        AnalyticsStore[Analytics Store]
+    end
+
+    subgraph Cache["Cache Layer"]
+        FormCache[Form Cache]
+        MenuCache[Menu Cache]
+        MetadataCache[Metadata Cache]
+    end
+
+    subgraph LLM["LLM Provider"]
+        LLMInterface[FormGenerationProvider]
+        CopilotClient[CopilotProxyClient]
+        AzureOpenAI[Azure OpenAIClient]
+    end
+
+    subgraph D365["D365 Finance & Operations"]
+        OData[OData CRUD]
+        MCPServer[ERP MCP Server]
+        EntityMeta[Entity Metadata]
+        BizEntities[Business Entities]
+    end
+
+    CopilotProxy(["Copilot Proxy<br/>127.0.0.1:8080"])
+
+    Browser --> Pages
+    Pages --> FormRenderer
+    FormRenderer --> Hooks
+    Hooks -->|Generate Form| FormGen
+    FormGen --> State
+    State --> Cache
+    FormGen --> LLM
+    LLM --> CopilotProxy
+    Cache -->|Data Access| D365
+    CopilotProxy --> D365
+```
+
+### Project Structure
+
 ```
 src/
 ├── components/
 │   ├── dashboard/          # KpiCard, ChartCard (recharts wrappers)
+│   ├── data-model/           # 3D entity graph (EntityDetailPanel, GraphLegend)
 │   ├── form-renderer/      # DynamicForm, FieldRenderer, GridRenderer, TabLayout
 │   ├── generation/         # FormGenerationProgress, FormRefinementPanel
 │   ├── shell/              # AppShell, CommandPalette, CompanySelector, MenuPanel
 │   └── ui/                 # shadcn/ui primitives (Card, Button, Input, etc.)
 ├── data/
 │   ├── entityCatalog.ts    # 35+ D365 entity definitions (keys, fields, categories)
+│   ├── entityGraphData.ts  # Graph nodes, edges, and domain color mappings
 │   ├── moduleTaxonomy.ts   # 8 modules × 37 menu items → entity set mappings
 │   └── sampleData.ts       # Synthetic data generator for demo mode
 ├── hooks/
@@ -47,6 +129,7 @@ src/
 │   └── useMenuStructure.ts # Module/menu navigation hook
 ├── pages/
 │   ├── DashboardPage.tsx   # Analytics dashboard + module navigation
+│   ├── DataModelPage.tsx   # 3D interactive entity relationship explorer
 │   └── FormPage.tsx        # Generative form page (metadata → LLM → rendered form)
 ├── services/
 │   ├── analytics/          # Dashboard data service (KPIs, charts via OData)
