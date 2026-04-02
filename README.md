@@ -4,6 +4,14 @@ A React-based generative UI client for Microsoft Dynamics 365 Finance & Operatio
 
 > **Disclaimer:** This is a personal research project and is not affiliated with, endorsed by, or representative of my employer. All opinions, code, and design decisions are my own.
 
+<img width="298" height="629" alt="image (9)" src="https://github.com/user-attachments/assets/61bd09a9-275d-405e-a7c7-6d44ab8831f1" /><img width="297" height="629" alt="image (11)" src="https://github.com/user-attachments/assets/c18384cb-c391-49ea-ac74-4db4f308abfc" />
+
+<img width="298" height="632" alt="image (10)" src="https://github.com/user-attachments/assets/e7fcf8cd-97a5-4adf-983e-646b7d0452de" /><img width="1264" height="687" alt="image (16)" src="https://github.com/user-attachments/assets/87ffcf4b-9fbd-4cd6-9ba6-539b29a247bd" />
+
+<img width="1261" height="694" alt="image (14)" src="https://github.com/user-attachments/assets/330e0331-06c4-46b2-84d1-8a1fc59415c2" />
+<img width="1071" height="698" alt="morphx explorer" src="https://github.com/user-attachments/assets/33c682d6-6807-4603-8eeb-38b183d2d8f9" />
+
+
 ## What It Does
 
 - **Generative Forms** — Point it at any D365 F&O menu item and an LLM generates a complete form (fields, grids, tabs, lookups, actions) from the entity metadata. No hand-coded forms.
