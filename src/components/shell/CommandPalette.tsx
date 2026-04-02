@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useNavigationHistory } from "@/store/navigationHistory";
 import type { MenuItem, NavigationEntry } from "@/types";
 
@@ -85,7 +86,22 @@ export function CommandPalette({ onSearch, onSelect }: CommandPaletteProps) {
     [query, results, selectedIndex, handleSelect]
   );
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-8 gap-1.5 text-xs text-muted-foreground"
+        onClick={() => setIsOpen(true)}
+      >
+        <Search className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Search...</span>
+        <kbd className="pointer-events-none hidden sm:inline-flex h-5 items-center rounded border bg-muted px-1 font-mono text-[10px]">
+          ⌘K
+        </kbd>
+      </Button>
+    );
+  }
 
   const recent = recentItems(5);
   const showRecent = query.trim().length < 2 && recent.length > 0;

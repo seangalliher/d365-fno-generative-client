@@ -29,6 +29,8 @@ interface AppState {
   toggleSidebar: () => void;
   theme: "light" | "dark" | "system";
   setTheme: (theme: "light" | "dark" | "system") => void;
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: (open: boolean) => void;
 }
 
 export const useAppState = create<AppState>()(
@@ -51,6 +53,8 @@ export const useAppState = create<AppState>()(
       toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       theme: "light",
       setTheme: (theme) => set({ theme }),
+      mobileMenuOpen: false,
+      setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
     }),
     {
       name: "d365-app-state",

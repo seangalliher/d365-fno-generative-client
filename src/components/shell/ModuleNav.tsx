@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-const ICON_MAP: Record<string, LucideIcon> = {
+export const ICON_MAP: Record<string, LucideIcon> = {
   "book-open": BookOpen,
   users: Users,
   "building-2": Building2,

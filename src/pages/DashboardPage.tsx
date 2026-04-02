@@ -2,11 +2,13 @@
  * Dashboard — Landing page with KPI tiles, charts, and module navigation.
  */
 
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigationHistory } from "@/store/navigationHistory";
 import { useMenuStructure } from "@/hooks/useMenuStructure";
 import { useAppState } from "@/store/appState";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { KpiCard } from "@/components/dashboard/KpiCard";
@@ -22,6 +24,7 @@ import {
   fetchTopProductsByInventory,
   fetchRecentSalesOrders,
   isDashboardLive,
+  setActiveDashboardSource,
 } from "@/services/analytics/dashboardService";
 import {
   BarChart,
@@ -49,8 +52,15 @@ const CHART_COLORS = ["#2563eb", "#7c3aed", "#db2777", "#ea580c", "#16a34a", "#0
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const company = useAppState((s) => s.currentCompany);
   const dataSource = useAppState((s) => s.dashboardDataSource);
+
+  // Sync the service-layer active type with Zustand-persisted preference
+  useEffect(() => {
+    setActiveDashboardSource(dataSource);
+  }, [dataSource]);
+
   const recentItemsFn = useNavigationHistory((s) => s.recentItems);
   const recentItems = recentItemsFn(8);
   const { modules } = useMenuStructure();
@@ -104,7 +114,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div>
-        <h1 className="text-3xl font-bold">D365 Generative Client</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">D365 Generative Client</h1>
         <p className="mt-1 text-muted-foreground">
           {isLive
             ? `Live data for company ${company}`
@@ -153,9 +163,12 @@ export function DashboardPage() {
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
-                    label={({ name, percent }) =>
-                      `${name} (${(percent * 100).toFixed(0)}%)`
-                    }
+                    label={({ name, percent }) => {
+                      const label = String(name);
+                      const maxLen = isMobile ? 10 : 30;
+                      const short = label.length > maxLen ? label.slice(0, maxLen) + "…" : label;
+                      return `${short} (${(percent * 100).toFixed(0)}%)`;
+                    }}
                   >
                     {salesStatusQuery.data.map((_, i) => (
                       <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
@@ -175,7 +188,7 @@ export function DashboardPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={topCustomersQuery.data} layout="vertical">
                   <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" width={isMobile ? 60 : 100} tick={{ fontSize: isMobile ? 10 : 11 }} />
                   <Tooltip />
                   <Bar dataKey="value" fill="#2563eb" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -197,9 +210,12 @@ export function DashboardPage() {
                     cx="50%"
                     cy="50%"
                     outerRadius={80}
-                    label={({ name, percent }) =>
-                      `${name} (${(percent * 100).toFixed(0)}%)`
-                    }
+                    label={({ name, percent }) => {
+                      const label = String(name);
+                      const maxLen = isMobile ? 10 : 30;
+                      const short = label.length > maxLen ? label.slice(0, maxLen) + "…" : label;
+                      return `${short} (${(percent * 100).toFixed(0)}%)`;
+                    }}
                   >
                     {poStatusQuery.data.map((_, i) => (
                       <Cell key={i} fill={CHART_COLORS[(i + 3) % CHART_COLORS.length]} />
@@ -219,7 +235,7 @@ export function DashboardPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={topInventoryQuery.data} layout="vertical">
                   <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" width={isMobile ? 60 : 100} tick={{ fontSize: isMobile ? 10 : 11 }} />
                   <Tooltip />
                   <Bar dataKey="value" fill="#16a34a" radius={[0, 4, 4, 0]} />
                 </BarChart>

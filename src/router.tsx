@@ -32,8 +32,12 @@ function PageSuspense({ children }: { children: React.ReactNode }) {
 }
 
 // Power Apps Code App basename normalization
-const BASENAME = new URL(".", location.href).pathname;
-if (location.pathname.endsWith("/index.html")) {
+// In Code Apps, the app is served from a subpath ending in /index.html.
+// On standard hosting (dev or prod at root), basename must stay "/" so that
+// deep links like /form/SalesTableListPage resolve correctly.
+const isCodeApp = location.pathname.endsWith("/index.html");
+const BASENAME = isCodeApp ? new URL(".", location.href).pathname : "/";
+if (isCodeApp) {
   history.replaceState(null, "", BASENAME + location.search + location.hash);
 }
 

@@ -133,10 +133,10 @@ ${entitySummary}
 
 Instructions:
 1. Pick the most relevant entity set from the list above
-2. Choose appropriate $select, $filter, $orderby, and $top parameters
-3. Always include a dataAreaId filter for the company
+2. ONLY use fields listed above in $select and $orderby — NEVER invent or assume fields that aren't listed (e.g., no "OrderCount", "TotalAmount", or other computed fields unless they appear in the entity field list)
+3. Always include a dataAreaId filter for the company: dataAreaId eq '${company}'
 4. Choose a chart type that best visualizes the answer: "bar", "pie", "line", or "table"
-5. If the question involves counts or grouping, plan client-side aggregation
+5. If the question involves counts or grouping, use "aggregateBy" for client-side aggregation instead of computed fields — fetch raw rows and set aggregateBy to the field name to group by. The client will count occurrences automatically.
 
 Return a JSON object with this exact structure:
 {

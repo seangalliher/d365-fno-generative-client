@@ -41,9 +41,9 @@ export function WizardLayout({ tabs, renderFields, renderGrids, onComplete }: Wi
   return (
     <div className="space-y-6">
       {/* Step indicator */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {sortedTabs.map((tab, index) => (
-          <div key={tab.name} className="flex items-center gap-2">
+          <div key={tab.name} className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => setCurrentStep(index)}
               className={cn(
@@ -71,7 +71,7 @@ export function WizardLayout({ tabs, renderFields, renderGrids, onComplete }: Wi
       </div>
 
       {/* Step content */}
-      <div className="rounded-lg border p-6">
+      <div className="rounded-lg border p-3 sm:p-6">
         <h3 className="mb-4 text-lg font-medium">{activeTab.label}</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {renderFields(activeTab.fields)}

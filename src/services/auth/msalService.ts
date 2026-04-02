@@ -11,6 +11,7 @@ import {
 } from "@azure/msal-browser";
 
 const D365_SCOPE = "https://fy26-h2-standard.operations.dynamics.com/.default";
+const MCP_SCOPE = import.meta.env.VITE_MCP_SCOPE as string || "https://agent365.svc.cloud.microsoft/.default";
 
 const msalConfig: Configuration = {
   auth: {
@@ -86,6 +87,35 @@ export async function getAccessToken(): Promise<string> {
     if (e instanceof InteractionRequiredAuthError) {
       await pca.acquireTokenRedirect({ scopes: [D365_SCOPE] });
       throw new Error("Token redirect initiated — page will reload");
+    }
+    throw e;
+  }
+}
+
+/**
+ * Get a fresh access token for the MCP server (may use a different scope/audience).
+ */
+export async function getMcpAccessToken(): Promise<string> {
+  const pca = await getInstance();
+  const account = pca.getActiveAccount() ?? pca.getAllAccounts()[0];
+
+  if (!account) {
+    throw new Error("No account — login required before MCP token acquisition");
+  }
+
+  const request: SilentRequest = {
+    scopes: [MCP_SCOPE],
+    account,
+  };
+
+  try {
+    const result = await pca.acquireTokenSilent(request);
+    return result.accessToken;
+  } catch (e) {
+    if (e instanceof InteractionRequiredAuthError) {
+      // Need consent for MCP scope — redirect
+      await pca.acquireTokenRedirect({ scopes: [MCP_SCOPE] });
+      throw new Error("MCP token redirect initiated — page will reload");
     }
     throw e;
   }

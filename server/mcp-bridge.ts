@@ -1,6 +1,6 @@
 /**
  * MCP Bridge Server — relays REST calls from the browser to the D365 MCP server
- * using the official @modelcontextprotocol/sdk SSE client transport.
+ * using the official @modelcontextprotocol/sdk Streamable HTTP client transport.
  *
  * The browser sends its MSAL bearer token; the bridge forwards it to the MCP server.
  * No credentials are stored on the bridge.
@@ -9,13 +9,13 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { createHash } from "node:crypto";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 // ---- Configuration ----
 
 const MCP_SERVER_URL =
   process.env.MCP_SERVER_URL ??
-  "https://agent365.svc.cloud.microsoft/mcp/environments/74e044ee-c9a4-eb11-b7eb-064361b18b09/servers/msdyn_ERPAnalyticsMCPServer";
+  "https://fy26-h2-standard.operations.dynamics.com/mcp";
 
 const PORT = Number(process.env.MCP_BRIDGE_PORT ?? 3001);
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -25,7 +25,7 @@ const ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
 
 interface PoolEntry {
   client: Client;
-  transport: SSEClientTransport;
+  transport: StreamableHTTPClientTransport;
   lastUsed: number;
 }
 
@@ -44,7 +44,13 @@ async function getOrCreateClient(token: string): Promise<Client> {
     return existing.client;
   }
 
-  const transport = new SSEClientTransport(new URL(MCP_SERVER_URL), {
+  // Log token audience for debugging auth issues
+  try {
+    const payload = JSON.parse(Buffer.from(token.split(".")[1]!, "base64").toString());
+    console.info(`[bridge] Token aud=${payload.aud}, iss=${payload.iss}, appid=${payload.appid ?? payload.azp ?? "?"}`);
+  } catch { /* not a JWT or parse error — ignore */ }
+
+  const transport = new StreamableHTTPClientTransport(new URL(MCP_SERVER_URL), {
     requestInit: {
       headers: { Authorization: `Bearer ${token}` },
     },

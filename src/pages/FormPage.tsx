@@ -82,17 +82,17 @@ export function FormPage() {
   return (
     <div className="space-y-4 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
             {viewMode === "detail" && isDisplayType && hasEntitySet && (
               <Button variant="ghost" size="sm" onClick={handleBackToList} className="mr-1">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
-            <h1 className="text-2xl font-bold">{item.label}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold truncate">{item.label}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">
             {module.label} &middot; {item.menuItemName} ({item.menuItemType})
           </p>
         </div>

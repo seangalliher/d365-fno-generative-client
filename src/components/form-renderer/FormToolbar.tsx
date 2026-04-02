@@ -38,32 +38,32 @@ export function FormToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-border pb-3">
-      <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold">{form.title}</h2>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <h2 className="text-base sm:text-lg font-semibold truncate">{form.title}</h2>
         {isDirty && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-            Unsaved changes
+          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800 shrink-0">
+            Unsaved
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {onNew && (
           <Button variant="outline" size="sm" onClick={onNew}>
-            <Plus className="mr-1 h-4 w-4" />
-            New
+            <Plus className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">New</span>
           </Button>
         )}
 
         {onSave && (
           <Button size="sm" onClick={onSave} disabled={saving || !isDirty}>
             {saving ? (
-              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin sm:mr-1" />
             ) : (
-              <Save className="mr-1 h-4 w-4" />
+              <Save className="h-4 w-4 sm:mr-1" />
             )}
-            Save
+            <span className="hidden sm:inline">Save</span>
           </Button>
         )}
 
@@ -74,15 +74,15 @@ export function FormToolbar({
             onClick={handleDelete}
             onBlur={() => setConfirmDelete(false)}
           >
-            <Trash2 className="mr-1 h-4 w-4" />
-            {confirmDelete ? "Confirm Delete" : "Delete"}
+            <Trash2 className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">{confirmDelete ? "Confirm" : "Delete"}</span>
           </Button>
         )}
 
         {onClose && (
           <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="mr-1 h-4 w-4" />
-            Close
+            <X className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Close</span>
           </Button>
         )}
       </div>

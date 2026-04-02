@@ -12,6 +12,8 @@ export interface EntityCatalogEntry {
   readonly searchFields: string[];
   readonly category: EntityCategory;
   readonly relatedEntities?: string[];
+  /** If false, this entity has no dataAreaId field and should not be filtered by company. Defaults to true. */
+  readonly companyFiltered?: boolean;
 }
 
 export type EntityCategory =
@@ -50,8 +52,8 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     label: "Released Products",
     description: "Released products per company with variants",
     keyFields: ["dataAreaId", "ItemNumber"],
-    defaultSelect: ["ItemNumber", "ProductName", "ProductType", "ItemModelGroupId", "ItemGroupId"],
-    searchFields: ["ItemNumber", "ProductName"],
+    defaultSelect: ["ItemNumber", "SearchName", "ProductType", "ItemModelGroupId", "ProductNumber"],
+    searchFields: ["ItemNumber", "SearchName"],
     category: "master-data",
   },
 
@@ -116,6 +118,7 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["LegalEntityId", "Name", "CompanyType", "AddressCountryRegionId"],
     searchFields: ["LegalEntityId", "Name"],
     category: "financials",
+    companyFiltered: false,
   },
   MainAccounts: {
     entitySet: "MainAccounts",
@@ -125,6 +128,7 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["MainAccountId", "Name", "MainAccountType", "ChartOfAccounts"],
     searchFields: ["MainAccountId", "Name"],
     category: "financials",
+    companyFiltered: false,
   },
   GeneralJournalHeaders: {
     entitySet: "GeneralJournalHeaders",
@@ -171,18 +175,20 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     label: "Workers",
     description: "Worker records (all worker types)",
     keyFields: ["PersonnelNumber"],
-    defaultSelect: ["PersonnelNumber", "KnownAs", "NameAlias", "WorkerType"],
-    searchFields: ["PersonnelNumber", "KnownAs"],
+    defaultSelect: ["PersonnelNumber", "Name", "NameAlias", "WorkerType"],
+    searchFields: ["PersonnelNumber", "Name"],
     category: "hr",
+    companyFiltered: false,
   },
   Employees: {
     entitySet: "Employees",
     label: "Employees",
     description: "Employee records",
     keyFields: ["PersonnelNumber"],
-    defaultSelect: ["PersonnelNumber", "KnownAs", "Company", "EmploymentStartDate"],
-    searchFields: ["PersonnelNumber", "KnownAs"],
+    defaultSelect: ["PersonnelNumber", "Name", "EmploymentLegalEntityId", "EmploymentStartDate"],
+    searchFields: ["PersonnelNumber", "Name"],
     category: "hr",
+    companyFiltered: false,
   },
 
   // --- Configuration ---
@@ -214,15 +220,17 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["FinancialDimension", "DimensionValue", "Description", "IsSuspended", "ActiveFrom", "ActiveTo"],
     searchFields: ["DimensionValue", "Description"],
     category: "financials",
+    companyFiltered: false,
   },
   LedgerFiscalPeriodsV2: {
     entitySet: "LedgerFiscalPeriodsV2",
     label: "Ledger Fiscal Periods",
     description: "Ledger fiscal calendar periods",
-    keyFields: ["FiscalCalendarId", "FiscalCalendarPeriodName"],
-    defaultSelect: ["FiscalCalendarId", "FiscalCalendarPeriodName", "StartDate", "EndDate"],
-    searchFields: ["FiscalCalendarId", "FiscalCalendarPeriodName"],
+    keyFields: ["LedgerName", "Calendar", "PeriodName"],
+    defaultSelect: ["LedgerName", "Calendar", "YearName", "PeriodName", "PeriodStatus"],
+    searchFields: ["Calendar", "PeriodName"],
     category: "financials",
+    companyFiltered: false,
   },
   LedgerChartOfAccounts: {
     entitySet: "LedgerChartOfAccounts",
@@ -232,14 +240,15 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["ChartOfAccounts", "Description"],
     searchFields: ["ChartOfAccounts", "Description"],
     category: "financials",
+    companyFiltered: false,
   },
   FreeTextInvoiceHeaders: {
     entitySet: "FreeTextInvoiceHeaders",
     label: "Free Text Invoices",
     description: "Customer free text invoice headers",
     keyFields: ["dataAreaId", "InvoiceIdentifier"],
-    defaultSelect: ["FreeTextNumber", "InvoiceId", "CustomerAccount", "InvoiceDate", "DueDate", "CurrencyCode", "IsPosted"],
-    searchFields: ["FreeTextNumber", "InvoiceId", "CustomerAccount"],
+    defaultSelect: ["FreeTextNumber", "CustomerAccount", "InvoiceDate", "DueDate", "CurrencyCode", "IsPosted"],
+    searchFields: ["FreeTextNumber", "CustomerAccount"],
     category: "financials",
   },
 
@@ -299,14 +308,15 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["RequisitionNumber", "RequisitionName", "RequisitionStatus", "PreparerPersonnelNumber", "DefaultRequestedDate"],
     searchFields: ["RequisitionNumber", "RequisitionName"],
     category: "purchasing",
+    companyFiltered: false,
   },
   RequestForQuotationReplyHeaders: {
     entitySet: "RequestForQuotationReplyHeaders",
     label: "Requests for Quotation",
     description: "Request for quotation reply headers",
-    keyFields: ["dataAreaId", "RFQCaseId"],
-    defaultSelect: ["RFQCaseId", "RFQCaseTitle", "VendorAccount"],
-    searchFields: ["RFQCaseId", "RFQCaseTitle"],
+    keyFields: ["dataAreaId", "RFQNumber"],
+    defaultSelect: ["RFQNumber", "RFQCaseNumber", "RFQCaseTitle", "VendorAccountNumber"],
+    searchFields: ["RFQNumber", "RFQCaseTitle"],
     category: "purchasing",
   },
   ProcurementProductCategories: {
@@ -317,6 +327,7 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["CategoryHierarchyName", "CategoryName", "ParentCategoryName"],
     searchFields: ["CategoryName", "CategoryHierarchyName"],
     category: "purchasing",
+    companyFiltered: false,
   },
 
   // --- Additional Inventory ---
@@ -354,8 +365,8 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     label: "BOM Versions",
     description: "Bill of materials versions",
     keyFields: ["dataAreaId", "BOMId", "ProductionSiteId"],
-    defaultSelect: ["BOMId", "ItemNumber", "ProductionSiteId", "IsActive"],
-    searchFields: ["BOMId", "ItemNumber"],
+    defaultSelect: ["BOMId", "ManufacturedItemNumber", "ProductionSiteId", "IsActive"],
+    searchFields: ["BOMId", "ManufacturedItemNumber"],
     category: "inventory",
   },
   RouteVersionsV2: {
@@ -375,6 +386,7 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["Value", "Name"],
     searchFields: ["Value", "Name"],
     category: "inventory",
+    companyFiltered: false,
   },
 
   // --- Additional HR ---
@@ -383,9 +395,10 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     label: "Positions",
     description: "HR position definitions",
     keyFields: ["PositionId"],
-    defaultSelect: ["PositionId", "Description"],
+    defaultSelect: ["PositionId", "Description", "JobId", "DepartmentNumber"],
     searchFields: ["PositionId", "Description"],
     category: "hr",
+    companyFiltered: false,
   },
   DimAttributeOMDepartments: {
     entitySet: "DimAttributeOMDepartments",
@@ -395,6 +408,7 @@ export const ENTITY_CATALOG: Record<string, EntityCatalogEntry> = {
     defaultSelect: ["Value", "Name"],
     searchFields: ["Value", "Name"],
     category: "hr",
+    companyFiltered: false,
   },
 };
 

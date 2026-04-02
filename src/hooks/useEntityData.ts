@@ -64,12 +64,13 @@ export function useEntityData(
       if (_formDataService) {
         try {
           const catalogEntry = getEntityCatalogEntry(entitySet!);
+          const isCompanyFiltered = catalogEntry?.companyFiltered !== false;
           const queryOptions: ODataQueryOptions = {
             top: options?.top ?? 50,
             select: options?.select ?? catalogEntry?.defaultSelect.join(","),
             orderby: options?.orderby,
-            crossCompany: true,
-            filter: `dataAreaId eq '${company}'`,
+            crossCompany: isCompanyFiltered,
+            filter: isCompanyFiltered ? `dataAreaId eq '${company}'` : undefined,
           };
 
           const result = await _formDataService.queryRecords(

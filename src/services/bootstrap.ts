@@ -147,6 +147,7 @@ export async function bootstrapServices(): Promise<void> {
 
     // Probe MCP bridge server (runs alongside Vite dev server on :3001)
     const mcpBridgeUrl = (import.meta.env.VITE_MCP_BRIDGE_URL as string) ?? "";
+    // MCP endpoint is on D365 domain — use the same D365 token
     const mcpClient = new McpBridgeClient({ bridgeUrl: mcpBridgeUrl, getAccessToken });
     const mcpReachable = await mcpClient.isReachable();
     if (mcpReachable) {

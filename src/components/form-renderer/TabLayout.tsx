@@ -19,13 +19,13 @@ export function TabLayout({ tabs, renderFields, renderGrids }: TabLayoutProps) {
   return (
     <div>
       {/* Tab bar */}
-      <div className="flex border-b border-border">
+      <div className="flex overflow-x-auto border-b border-border">
         {sorted.map((tab) => (
           <button
             key={tab.name}
             onClick={() => setActiveTab(tab.name)}
             className={cn(
-              "px-4 py-2 text-sm font-medium transition-colors",
+              "shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors",
               "hover:text-foreground",
               activeTab === tab.name
                 ? "border-b-2 border-primary text-foreground"
